@@ -19,7 +19,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const router = useRouter();
 
   return (
-    <Card className="bg-gray-800 text-white shadow-md">
+    <Card className="bg-gray-800 text-white shadow-md min-w-80">
       <img
         src={product.images}
         alt={product.name}

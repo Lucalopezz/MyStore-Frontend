@@ -1,14 +1,14 @@
 export interface Product {
   id: number;
   name: string;
-  description?: string; // Campo opcional
-  price: number; // Representado como número no frontend
+  description?: string; 
+  price: number; 
   quantity: number;
   images: string; 
   createdAt: string; 
-  updatedAt: string; // ISO string de data
-  carts: CartProduct[]; // Associado a CartProduct[]
-  orders: ProductOrder[]; // Associado a ProductOrder[]
+  updatedAt: string; 
+  carts: CartProduct[]; 
+  orders: ProductOrder[]; 
 }
 
 export interface CartProduct {
