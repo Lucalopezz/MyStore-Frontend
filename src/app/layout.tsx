@@ -1,6 +1,8 @@
 import { Metadata } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
+import {cn} from "@/lib/utils"
+
 
 export const metadata: Metadata = {
   title: "Lojinha NextJS",
@@ -14,7 +16,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="pt-BR">
-      <body>
+      <body className={cn("bg-gray-600 text-white min-h-screen antialiased")}>
         <Providers>{children}</Providers>
       </body>
     </html>
