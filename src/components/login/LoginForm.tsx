@@ -6,6 +6,11 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
+import { LoadingState } from "../LoadingState";
+
 
 const loginSchema = z.object({
   email: z
@@ -22,6 +27,11 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
+  const router = useRouter();
+
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  
   const {
     register,
     handleSubmit,
@@ -33,10 +43,27 @@ export default function LoginForm() {
     },
   });
 
-  const onSubmit = (data: LoginFormData) => {
-    console.log(data);
-    // Aqui você implementa a lógica de login
+  const onSubmit = async (data: LoginFormData) => {
+    try {
+      const result = await signIn("credentials", {
+        email: data.email,
+        password: data.password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError("Email ou senha inválidos");
+      } else {
+        router.push("/dashboard");
+        router.refresh();
+      }
+    } catch (error) {
+      setError("Ocorreu um erro ao fazer login");
+    } finally {
+      setLoading(false);
+    }
   };
+  if (loading) return <LoadingState />;
 
   return (
     <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
@@ -44,6 +71,7 @@ export default function LoginForm() {
         Login
       </h2>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {error && <p className="text-center text-red-500 mb-4">{error}</p>}
         <div>
           <Label htmlFor="email" className="text-gray-600">
             Email

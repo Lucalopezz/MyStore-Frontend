@@ -6,10 +6,11 @@ const handler = NextAuth({
     CredentialsProvider({
       name: "Credentials",
       credentials: {
-        email: { label: "Email", type: "email" },
-        password: { label: "Senha", type: "password" },
+        email: { label: "email", type: "email" },
+        password: { label: "password", type: "password" },
       },
       async authorize(credentials) {
+        console.log(credentials);
         try {
           const response = await fetch("http://localhost:3001/auth", {
             method: "POST",
@@ -21,11 +22,12 @@ const handler = NextAuth({
           });
 
           const data = await response.json();
+          console.log(data)
 
-          if (response.ok && data.token) {
+          if (response.ok && data.accessToken) {
             return {
               id: "1",
-              jwt: data.token,
+              jwt: data.accessToken,
             };
           }
           return null;
@@ -49,6 +51,7 @@ const handler = NextAuth({
   },
   pages: {
     signIn: "/login",
+    signOut: "/login", 
   },
 });
 

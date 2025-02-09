@@ -1,7 +1,11 @@
 "use client";
+import { signOut } from "next-auth/react";
 import Link from "next/link";
 
 export default function Header() {
+  const handleLogout = () => {
+    signOut();
+  };
   return (
     <header className="bg-gray-950 text-white shadow-md">
       <div className="container mx-auto flex justify-between items-center px-6 py-4">
@@ -10,7 +14,6 @@ export default function Header() {
             My Store
           </h1>
         </div>
-
 
         <nav>
           <ul className="flex space-x-6">
@@ -30,9 +33,12 @@ export default function Header() {
               </Link>
             </li>
             <li>
-              <Link href="/logout" className="hover:underline">
+              <button
+                onClick={() => signOut()}
+                className="hover:underline"
+              >
                 Logout
-              </Link>
+              </button>
             </li>
           </ul>
         </nav>

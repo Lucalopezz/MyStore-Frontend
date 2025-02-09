@@ -1,5 +1,6 @@
 import { Product } from "@/interfaces/product.interface";
-import { QueryClient, useQuery } from "@tanstack/react-query";
+import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
+import { signIn } from "next-auth/react";
 
 interface PaginationMeta {
   page: number;
