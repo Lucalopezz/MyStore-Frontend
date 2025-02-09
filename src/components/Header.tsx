@@ -25,6 +25,11 @@ export default function Header() {
               </Link>
             </li>
             <li>
+              <Link href="/login" className="hover:underline">
+                Login
+              </Link>
+            </li>
+            <li>
               <Link href="/logout" className="hover:underline">
                 Logout
               </Link>
