@@ -1,11 +1,11 @@
 "use client";
-import { useProducts } from "@/hooks/useProducts";
 import { Product } from "@/interfaces/product.interface";
 import { LoadingState } from "../LoadingState";
 import { ErrorState } from "../ErrorState";
 import { ProductCard } from "./ProductCard";
 import { useState } from "react";
 import Pagination from "../Pagination";
+import { useProducts } from "@/hooks/useQueryClient";
 
 export function ProductList() {
   const [currentPage, setCurrentPage] = useState(1);
