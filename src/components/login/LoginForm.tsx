@@ -1,38 +1,17 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useAuth } from "@/hooks/useLogin";
+import { LoginFormData, loginSchema } from "@/schemas/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { useForm } from "react-hook-form";
 import { LoadingState } from "../LoadingState";
+import { FormField } from "../form/FormField";
+import { Label } from "@radix-ui/react-label";
+import { Button } from "../ui/button";
 import Link from "next/link";
-import toast from "react-hot-toast";
-
-
-const loginSchema = z.object({
-  email: z
-    .string()
-    .min(1, "Email é obrigatório")
-    .email("Formato de email inválido"),
-  password: z
-    .string()
-    .min(1, "Senha é obrigatória")
-    .min(8, "Senha deve ter no mínimo 8 caracteres"),
-  rememberMe: z.boolean().default(false),
-});
-
-type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function LoginForm() {
-  const router = useRouter();
-
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const { handleLogin, error, loading } = useAuth();
   
   const {
     register,
@@ -45,27 +24,6 @@ export default function LoginForm() {
     },
   });
 
-  const onSubmit = async (data: LoginFormData) => {
-    try {
-      const result = await signIn("credentials", {
-        email: data.email,
-        password: data.password,
-        redirect: false,
-      });
-
-      if (result?.error) {
-        setError("Email ou senha inválidos");
-      } else {
-        router.push("/dashboard");
-        router.refresh();
-        toast.success('Operação realizada com sucesso!');
-      }
-    } catch (error) {
-      setError("Ocorreu um erro ao fazer login");
-    } finally {
-      setLoading(false);
-    }
-  };
   if (loading) return <LoadingState />;
 
   return (
@@ -73,47 +31,26 @@ export default function LoginForm() {
       <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">
         Login
       </h2>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit(handleLogin)} className="space-y-4">
         {error && <p className="text-center text-red-500 mb-4">{error}</p>}
-        <div>
-          <Label htmlFor="email" className="text-gray-600">
-            Email
-          </Label>
-          <Input
-            id="email"
-            type="email"
-            placeholder="Digite seu e-mail"
-            className={`w-full text-black p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-              errors.email ? "border-red-500" : "border-gray-300"
-            }`}
-            {...register("email")}
-          />
-          {errors.email && (
-            <span className="text-sm text-red-500 mt-1">
-              {errors.email.message}
-            </span>
-          )}
-        </div>
+        
+        <FormField
+          label="Email"
+          id="email"
+          type="email"
+          placeholder="Digite seu e-mail"
+          error={errors.email?.message}
+          register={register}
+        />
 
-        <div>
-          <Label htmlFor="password" className="text-gray-600">
-            Senha
-          </Label>
-          <Input
-            id="password"
-            type="password"
-            placeholder="Digite sua senha"
-            className={`w-full p-3 border rounded-md text-black focus:outline-none focus:ring-2 focus:ring-blue-400 ${
-              errors.password ? "border-red-500" : "border-gray-300"
-            }`}
-            {...register("password")}
-          />
-          {errors.password && (
-            <span className="text-sm text-red-500 mt-1">
-              {errors.password.message}
-            </span>
-          )}
-        </div>
+        <FormField
+          label="Senha"
+          id="password"
+          type="password"
+          placeholder="Digite sua senha"
+          error={errors.password?.message}
+          register={register}
+        />
 
         <div className="flex justify-between items-center">
           <div className="flex items-center">
