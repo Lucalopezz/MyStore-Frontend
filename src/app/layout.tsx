@@ -1,7 +1,8 @@
 import { Metadata } from "next";
 import "./globals.css";
-import { Providers } from "./providers";
+
 import {cn} from "@/lib/utils"
+import { Providers } from "@/providers";
 
 
 export const metadata: Metadata = {

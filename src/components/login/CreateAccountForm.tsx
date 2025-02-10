@@ -8,13 +8,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
 import { LoadingState } from "../LoadingState";
 import Link from "next/link";
-import toast from "react-hot-toast";
 
-
-const loginSchema = z.object({
+const createAccountSchema = z.object({
+  username: z
+    .string()
+    .min(3, "Nome de usuário deve ter no mínimo 3 caracteres")
+    .max(20, "Nome de usuário deve ter no máximo 20 caracteres"),
   email: z
     .string()
     .min(1, "Email é obrigatório")
@@ -22,13 +23,12 @@ const loginSchema = z.object({
   password: z
     .string()
     .min(1, "Senha é obrigatória")
-    .min(8, "Senha deve ter no mínimo 8 caracteres"),
-  rememberMe: z.boolean().default(false),
+    .min(8, "Senha deve ter no mínimo 8 caracteres")
 });
 
-type LoginFormData = z.infer<typeof loginSchema>;
+type CreateAccountFormData = z.infer<typeof createAccountSchema>;
 
-export default function LoginForm() {
+export default function CreateAccountForm() {
   const router = useRouter();
 
   const [error, setError] = useState("");
@@ -38,43 +38,51 @@ export default function LoginForm() {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
-    defaultValues: {
-      rememberMe: false,
-    },
+  } = useForm<CreateAccountFormData>({
+    resolver: zodResolver(createAccountSchema),
   });
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (data: CreateAccountFormData) => {
+    setLoading(true);
     try {
-      const result = await signIn("credentials", {
-        email: data.email,
-        password: data.password,
-        redirect: false,
-      });
-
-      if (result?.error) {
-        setError("Email ou senha inválidos");
-      } else {
-        router.push("/dashboard");
-        router.refresh();
-        toast.success('Operação realizada com sucesso!');
-      }
+     console.log(data)
     } catch (error) {
-      setError("Ocorreu um erro ao fazer login");
+      setError("Ocorreu um erro ao criar a conta");
     } finally {
       setLoading(false);
     }
   };
+
   if (loading) return <LoadingState />;
 
   return (
     <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg">
       <h2 className="text-2xl font-semibold text-center text-gray-800 mb-6">
-        Login
+        Criar Conta
       </h2>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
         {error && <p className="text-center text-red-500 mb-4">{error}</p>}
+        
+        <div>
+          <Label htmlFor="username" className="text-gray-600">
+            Nome de Usuário
+          </Label>
+          <Input
+            id="username"
+            type="text"
+            placeholder="Digite seu nome de usuário"
+            className={`w-full text-black p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400 ${
+              errors.username ? "border-red-500" : "border-gray-300"
+            }`}
+            {...register("username")}
+          />
+          {errors.username && (
+            <span className="text-sm text-red-500 mt-1">
+              {errors.username.message}
+            </span>
+          )}
+        </div>
+
         <div>
           <Label htmlFor="email" className="text-gray-600">
             Email
@@ -115,33 +123,19 @@ export default function LoginForm() {
           )}
         </div>
 
-        <div className="flex justify-between items-center">
-          <div className="flex items-center">
-            <input
-              id="rememberMe"
-              type="checkbox"
-              className="h-4 w-4 text-blue-500 focus:ring-0"
-              {...register("rememberMe")}
-            />
-            <Label htmlFor="rememberMe" className="ml-2 text-gray-600">
-              Lembrar de mim
-            </Label>
-          </div>
-        </div>
-
         <Button
           type="submit"
           className="w-full py-3 mt-4 bg-gray-950 text-white rounded-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
-          Entrar
+          Criar Conta
         </Button>
       </form>
 
       <div className="mt-6 text-center">
         <p className="text-gray-600">
-          Não tem uma conta?{" "}
-          <Link href="/create-account" className="text-gray-950">
-            <b>Crie uma</b>
+          Já tem uma conta?{" "}
+          <Link href="/login" className="text-gray-950">
+            <b>Faça login</b>
           </Link>
         </p>
       </div>
