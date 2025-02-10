@@ -1,4 +1,3 @@
-// Pagination.tsx (Filho)
 "use client";
 
 interface PaginationProps {
