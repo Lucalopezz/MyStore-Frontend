@@ -10,7 +10,6 @@ const handler = NextAuth({
         password: { label: "password", type: "password" },
       },
       async authorize(credentials) {
-        console.log(credentials);
         try {
           const response = await fetch("http://localhost:3001/auth", {
             method: "POST",
@@ -22,7 +21,6 @@ const handler = NextAuth({
           });
 
           const data = await response.json();
-          console.log(data)
 
           if (response.ok && data.accessToken) {
             return {
@@ -51,7 +49,7 @@ const handler = NextAuth({
   },
   pages: {
     signIn: "/login",
-    signOut: "/login", 
+    signOut: "/login",
   },
 });
 

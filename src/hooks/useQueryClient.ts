@@ -1,9 +1,12 @@
 import { Product } from "@/interfaces/product.interface";
+import { User } from "@/interfaces/user.interface";
 import { CreateAccountFormData } from "@/schemas/createAccount";
 import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
+
+import { getSession } from "next-auth/react";
 
 interface PaginationMeta {
   page: number;
@@ -82,4 +85,28 @@ export function useCreateUser() {
     isLoading: mutation.isPending,
     error,
   };
+}
+async function fetchUser() {
+  const session = await getSession();
+
+  const response = await fetch(`${apiUrl}user/get-one`, {
+    headers: {
+      Authorization: `Bearer ${session?.jwt}`,
+    },
+  });
+
+  if (!response.ok) {
+    throw new Error("Erro ao buscar produtos");
+  }
+  const { user } = await response.json();
+
+  return user as Promise<User>;
+}
+
+export function useGetUser() {
+  return useQuery({
+    queryKey: ["user"],
+    queryFn: () => fetchUser(),
+    placeholderData: (previousData) => previousData,
+  });
 }

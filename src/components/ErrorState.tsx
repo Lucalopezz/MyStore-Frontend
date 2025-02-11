@@ -11,7 +11,7 @@ export function ErrorState({ message }: ErrorStateProps) {
       <Card className="w-80 bg-gray-800 text-white border border-red-500">
         <CardContent>
           <p className="text-center text-red-400">
-            {message || "Erro ao carregar produtos"}
+            {message || "Erro ao carregar itens"}
           </p>
         </CardContent>
       </Card>
