@@ -66,7 +66,8 @@ export function useCreateUser() {
       });
 
       if (!response.ok) {
-        throw new Error("Erro ao criar conta");
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Erro ao criar conta");
       }
 
       return response.json();
