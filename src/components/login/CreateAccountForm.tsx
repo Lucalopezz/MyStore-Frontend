@@ -63,6 +63,14 @@ export default function CreateAccountForm() {
           error={errors.password?.message}
           register={register}
         />
+        <FormField
+          label="Confirme sua senha"
+          id="confirmPassword"
+          type="password"
+          placeholder="Digite sua senha novamente"
+          error={errors.confirmPassword?.message}
+          register={register}
+        />
 
         <Button
           type="submit"

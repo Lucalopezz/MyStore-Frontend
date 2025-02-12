@@ -9,10 +9,13 @@ import { FormField } from "../form/FormField";
 import { Label } from "@radix-ui/react-label";
 import { Button } from "../ui/button";
 import Link from "next/link";
+import { useState } from "react";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function LoginForm() {
   const { handleLogin, error, loading } = useAuth();
-  
+  const [showPassword, setShowPassword] = useState(false);
+
   const {
     register,
     handleSubmit,
@@ -33,7 +36,7 @@ export default function LoginForm() {
       </h2>
       <form onSubmit={handleSubmit(handleLogin)} className="space-y-4">
         {error && <p className="text-center text-red-500 mb-4">{error}</p>}
-        
+
         <FormField
           label="Email"
           id="email"
@@ -43,14 +46,27 @@ export default function LoginForm() {
           register={register}
         />
 
-        <FormField
-          label="Senha"
-          id="password"
-          type="password"
-          placeholder="Digite sua senha"
-          error={errors.password?.message}
-          register={register}
-        />
+        <div className="relative">
+          <FormField
+            label="Senha"
+            id="password"
+            type={showPassword ? "text" : "password"}
+            placeholder="Digite sua senha"
+            error={errors.password?.message}
+            register={register}
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-9 text-gray-500 hover:text-gray-700 focus:outline-none"
+          >
+            {showPassword ? (
+              <EyeOff className="h-5 w-5" />
+            ) : (
+              <Eye className="h-5 w-5" />
+            )}
+          </button>
+        </div>
 
         <div className="flex justify-between items-center">
           <div className="flex items-center">

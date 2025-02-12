@@ -57,12 +57,13 @@ export function useCreateUser() {
 
   const mutation = useMutation({
     mutationFn: async (data: CreateAccountFormData) => {
+      const { confirmPassword, ...userData } = data;
       const response = await fetch(`${apiUrl}user`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(userData),
       });
 
       if (!response.ok) {
