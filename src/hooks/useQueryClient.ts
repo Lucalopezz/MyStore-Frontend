@@ -100,9 +100,9 @@ async function fetchUser() {
   if (!response.ok) {
     throw new Error("Erro ao buscar produtos");
   }
-  const { user } = await response.json();
+ 
 
-  return user as Promise<User>;
+  return response.json() as Promise<User>;
 }
 
 export function useGetUser() {

@@ -9,7 +9,12 @@ interface ImageUploadProps {
 }
 
 export const ImageUpload = ({ currentImage }: ImageUploadProps) => {
-  const [previewUrl, setPreviewUrl] = useState(currentImage);
+
+  const currentImageUrl = `${process.env.NEXT_PUBLIC_IMAGE_URL}user/${currentImage}`;
+
+
+
+  const [previewUrl, setPreviewUrl] = useState(currentImageUrl);
 
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
