@@ -7,6 +7,8 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 
 import { getSession } from "next-auth/react";
+import api from "@/utils/api";
+import axios from "axios";
 
 interface PaginationMeta {
   page: number;
@@ -22,7 +24,7 @@ interface ProductsResponse {
   meta: PaginationMeta;
 }
 
-const apiUrl = "http://localhost:3001/";
+const apiUrl = process.env.NEXT_PUBLIC_BACKEND_URL
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -33,15 +35,20 @@ export const queryClient = new QueryClient({
   },
 });
 
-async function fetchProducts(page: number = 1, limit: number = 8) {
-  const response = await fetch(`${apiUrl}product?page=${page}&limit=${limit}`);
-
-  if (!response.ok) {
+async function fetchProducts(page: number = 1, limit: number = 8): Promise<ProductsResponse> {
+  try {
+    const response = await api.get<ProductsResponse>("/product", {
+      params: { page, limit },
+    });
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response) {
+      throw new Error(error.response.data.message || "Erro ao buscar produtos");
+    }
     throw new Error("Erro ao buscar produtos");
   }
-
-  return response.json() as Promise<ProductsResponse>;
 }
+
 
 export function useProducts(page: number = 1, limit: number = 12) {
   return useQuery({
@@ -58,20 +65,15 @@ export function useCreateUser() {
   const mutation = useMutation({
     mutationFn: async (data: CreateAccountFormData) => {
       const { confirmPassword, ...userData } = data;
-      const response = await fetch(`${apiUrl}user`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(userData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Erro ao criar conta");
+      try {
+        const response = await api.post("/user", userData);
+        return response.data;
+      } catch (err: any) {
+        if (axios.isAxiosError(err) && err.response) {
+          throw new Error(err.response.data.message || "Erro ao criar conta");
+        }
+        throw new Error("Erro ao criar conta");
       }
-
-      return response.json();
     },
     onSuccess: () => {
       router.push("/login");
@@ -88,21 +90,24 @@ export function useCreateUser() {
     error,
   };
 }
-async function fetchUser() {
+
+
+async function fetchUser(): Promise<User> {
   const session = await getSession();
-
-  const response = await fetch(`${apiUrl}user/get-one`, {
-    headers: {
-      Authorization: `Bearer ${session?.jwt}`,
-    },
-  });
-
-  if (!response.ok) {
-    throw new Error("Erro ao buscar produtos");
+  if (!session) {
+    throw new Error("Sessão não encontrada.");
   }
- 
 
-  return response.json() as Promise<User>;
+  try {
+    const response = await api.get<User>('/user/get-one', {
+      headers: {
+        Authorization: `Bearer ${session.jwt}`
+      }
+    });
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
 }
 
 export function useGetUser() {

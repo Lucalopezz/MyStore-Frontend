@@ -1,5 +1,22 @@
-import NextAuth from "next-auth";
+import NextAuth, { DefaultSession } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import { JWT } from "next-auth/jwt";
+
+declare module "next-auth" {
+  interface Session extends DefaultSession {
+    jwt: string;
+  }
+
+  interface User {
+    jwt: string;
+  }
+}
+
+declare module "next-auth/jwt" {
+  interface JWT {
+    jwt: string;
+  }
+}
 
 const handler = NextAuth({
   providers: [
@@ -43,8 +60,10 @@ const handler = NextAuth({
       return token;
     },
     async session({ session, token }) {
-      session.jwt = token.jwt;
-      return session;
+      return {
+        ...session,
+        jwt: token.jwt,
+      };
     },
   },
   pages: {
