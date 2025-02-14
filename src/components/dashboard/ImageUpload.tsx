@@ -3,41 +3,53 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Camera } from "lucide-react";
 import toast from "react-hot-toast";
+import { Controller, useForm } from "react-hook-form";
+import {
+  updateProfilePictureData,
+  updateProfilePictureSchema,
+} from "@/schemas/profile";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useUploadUserImage } from "@/hooks/useQueryClient";
 
 interface ImageUploadProps {
   currentImage?: string;
 }
 
 export const ImageUpload = ({ currentImage }: ImageUploadProps) => {
-
   const currentImageUrl = `${process.env.NEXT_PUBLIC_IMAGE_URL}user/${currentImage}`;
+  const [previewUrl, setPreviewUrl] = useState<string | null>(currentImageUrl);
 
+  const {
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm({
+    resolver: zodResolver(updateProfilePictureSchema),
+    defaultValues: {
+      image: undefined as unknown as FileList,
+    },
+  });
 
+  const { uploadImage, error } = useUploadUserImage(); 
 
-  const [previewUrl, setPreviewUrl] = useState(currentImageUrl);
-
-  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
+  const handleImageUpload = async (data: updateProfilePictureData) => {
+    const file = data.image[0]; 
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setPreviewUrl(reader.result as string);
+        setPreviewUrl(reader.result as string); 
       };
       reader.readAsDataURL(file);
 
-      try {
-        // const formData = new FormData();
-        // formData.append('image', file);
-        // await uploadImage(formData);
-        toast.success("Foto atualizada com sucesso!");
-      } catch (error) {
-        toast.error("Erro ao atualizar foto");
-      }
+      uploadImage(data); 
     }
   };
 
   return (
-    <div className="flex flex-col items-center space-y-4">
+    <form
+      onSubmit={handleSubmit(handleImageUpload)}
+      className="flex flex-col items-center space-y-4"
+    >
       <div className="relative w-48 h-48 rounded-full overflow-hidden bg-gray-100">
         {previewUrl ? (
           <img
@@ -57,15 +69,30 @@ export const ImageUpload = ({ currentImage }: ImageUploadProps) => {
             <Camera className="w-5 h-5" />
             <span>Alterar foto</span>
           </div>
-          <Input
-            id="image"
-            type="file"
-            accept="image/*"
-            className="hidden"
-            onChange={handleImageUpload}
+          <Controller
+            name="image"
+            control={control}
+            render={({ field }) => (
+              <Input
+                id="image"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={(event) => field.onChange(event.target.files)}
+              />
+            )}
           />
         </Label>
+        {errors.image && (
+          <p className="text-red-500 text-sm mt-1">{errors.image.message}</p>
+        )}
       </div>
-    </div>
+      <button
+        type="submit"
+        className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+      >
+        Salvar
+      </button>
+    </form>
   );
 };

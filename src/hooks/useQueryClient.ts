@@ -1,14 +1,21 @@
 import { Product } from "@/interfaces/product.interface";
 import { User } from "@/interfaces/user.interface";
 import { CreateAccountFormData } from "@/schemas/createAccount";
-import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
+import {
+  QueryClient,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import toast from "react-hot-toast";
 
 import { getSession } from "next-auth/react";
-import api from "@/utils/api";
+
 import axios from "axios";
+import { updateProfilePictureData } from "@/schemas/profile";
+import api from "@/utils/api";
 
 interface PaginationMeta {
   page: number;
@@ -24,8 +31,6 @@ interface ProductsResponse {
   meta: PaginationMeta;
 }
 
-const apiUrl = process.env.NEXT_PUBLIC_BACKEND_URL
-
 export const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -35,7 +40,10 @@ export const queryClient = new QueryClient({
   },
 });
 
-async function fetchProducts(page: number = 1, limit: number = 8): Promise<ProductsResponse> {
+async function fetchProducts(
+  page: number = 1,
+  limit: number = 8
+): Promise<ProductsResponse> {
   try {
     const response = await api.get<ProductsResponse>("/product", {
       params: { page, limit },
@@ -48,7 +56,6 @@ async function fetchProducts(page: number = 1, limit: number = 8): Promise<Produ
     throw new Error("Erro ao buscar produtos");
   }
 }
-
 
 export function useProducts(page: number = 1, limit: number = 12) {
   return useQuery({
@@ -68,9 +75,9 @@ export function useCreateUser() {
       try {
         const response = await api.post("/user", userData);
         return response.data;
-      } catch (err: any) {
-        if (axios.isAxiosError(err) && err.response) {
-          throw new Error(err.response.data.message || "Erro ao criar conta");
+      } catch (error: any) {
+        if (axios.isAxiosError(error) && error.response) {
+          throw new Error(error.response.data.message || "Erro ao criar conta");
         }
         throw new Error("Erro ao criar conta");
       }
@@ -91,7 +98,6 @@ export function useCreateUser() {
   };
 }
 
-
 async function fetchUser(): Promise<User> {
   const session = await getSession();
   if (!session) {
@@ -99,10 +105,10 @@ async function fetchUser(): Promise<User> {
   }
 
   try {
-    const response = await api.get<User>('/user/get-one', {
+    const response = await api.get<User>("/user/get-one", {
       headers: {
-        Authorization: `Bearer ${session.jwt}`
-      }
+        Authorization: `Bearer ${session.jwt}`,
+      },
     });
     return response.data;
   } catch (error) {
@@ -116,4 +122,49 @@ export function useGetUser() {
     queryFn: () => fetchUser(),
     placeholderData: (previousData) => previousData,
   });
+}
+
+export function useUploadUserImage() {
+  const [error, setError] = useState("");
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: async (data: updateProfilePictureData) => {
+      const file = data.image[0];
+
+      const formData = new FormData();
+      formData.append("file", file);
+
+      try {
+        const response = await api.post("/user/upload-picture", formData, {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        });
+
+        return response.data;
+      } catch (error) {
+        if (axios.isAxiosError(error)) {
+          throw new Error(
+            error.response?.data?.message || "Erro ao atualizar imagem"
+          );
+        }
+        throw new Error("Erro ao atualizar imagem");
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+      toast.success("Imagem de perfil atualizada com sucesso!");
+    },
+    onError: (err: Error) => {
+      setError(err.message);
+      toast.error(err.message);
+    },
+  });
+
+  return {
+    uploadImage: mutation.mutate,
+    error,
+    isLoading: mutation.isPending,
+  };
 }
