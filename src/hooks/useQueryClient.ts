@@ -14,7 +14,7 @@ import toast from "react-hot-toast";
 import { getSession } from "next-auth/react";
 
 import axios from "axios";
-import { updateProfilePictureData } from "@/schemas/profile";
+import { UpdateProfileData, updateProfilePictureData } from "@/schemas/profile";
 import api from "@/utils/api";
 
 interface PaginationMeta {
@@ -167,4 +167,41 @@ export function useUploadUserImage() {
     error,
     isLoading: mutation.isPending,
   };
+}
+
+export function useUpdateUser() {
+  
+  const [error, setError] = useState("");
+
+const mutation = useMutation({
+  mutationFn: async (data: UpdateProfileData) => {
+
+    const session = await getSession();
+    if (!session) {
+      throw new Error("Sessão não encontrada.");
+    }
+
+    const userData = { password: data.newPassword, username: data.username };
+    try {
+      const response = await api.patch("/user", userData, );
+      return response.data;
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(error.response.data.message || "Erro ao criar conta");
+      }
+      throw new Error("Erro ao criar conta");
+    }
+  },
+  onSuccess: () => {
+    toast.success("Perfil atualizado com sucesso!");
+  },
+  onError: (err: Error) => {
+    setError(err.message || "Algo deu errado");
+  },
+})
+return {
+  updateUser: mutation.mutate,
+  isLoading: mutation.isPending,
+  error,
+};
 }

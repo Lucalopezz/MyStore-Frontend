@@ -5,13 +5,40 @@ export const updateProfileSchema = z
     username: z.string().min(3, "Username deve ter no mínimo 3 caracteres"),
     newPassword: z
       .string()
-      .min(8, "Nova senha deve ter no mínimo 8 caracteres"),
-    confirmPassword: z.string().min(1, "Confirmação de senha é obrigatória"),
+      .optional()
+      .transform((e) => (e === "" ? undefined : e))
+      .pipe(
+        z
+          .string()
+          .min(8, "Nova senha deve ter no mínimo 8 caracteres")
+          .optional()
+      ),
+    confirmPassword: z
+      .string()
+      .optional()
+      .transform((e) => (e === "" ? undefined : e))
   })
-  .refine((data) => data.newPassword === data.confirmPassword, {
-    message: "As senhas não coincidem",
-    path: ["confirmPassword"],
-  });
+  .refine(
+    (data) => {
+      if (!data.newPassword) return true;
+      return data.newPassword === data.confirmPassword;
+    },
+    {
+      message: "As senhas não coincidem",
+      path: ["confirmPassword"],
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.newPassword && !data.confirmPassword) return false;
+      if (!data.newPassword && data.confirmPassword) return false;
+      return true;
+    },
+    {
+      message: "Ambos os campos de senha devem ser preenchidos",
+      path: ["confirmPassword"],
+    }
+  );
 
 export type UpdateProfileData = z.infer<typeof updateProfileSchema>;
 
