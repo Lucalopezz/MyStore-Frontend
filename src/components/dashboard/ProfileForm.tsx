@@ -13,10 +13,11 @@ interface ProfileFormProps {
 }
 
 export const ProfileForm = ({ defaultValues }: ProfileFormProps) => {
-  const { error, isLoading, updateUser } = useUpdateUser();
+  const { error, updateUser } = useUpdateUser();
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<UpdateProfileData>({
     resolver: zodResolver(updateProfileSchema),
@@ -26,7 +27,11 @@ export const ProfileForm = ({ defaultValues }: ProfileFormProps) => {
   });
 
   const onSubmit = async (data: UpdateProfileData) => {
-    updateUser(data);
+    updateUser(data, {
+      onSuccess: () => {
+        reset(); 
+      },
+    });
   };
 
   return (

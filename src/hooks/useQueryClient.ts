@@ -16,6 +16,7 @@ import { getSession } from "next-auth/react";
 import axios from "axios";
 import { UpdateProfileData, updateProfilePictureData } from "@/schemas/profile";
 import api from "@/utils/api";
+import { jwtDecode } from "jwt-decode";
 
 interface PaginationMeta {
   page: number;
@@ -169,39 +170,52 @@ export function useUploadUserImage() {
   };
 }
 
+interface JwtPayload {
+  sub: string;
+}
+
 export function useUpdateUser() {
-  
   const [error, setError] = useState("");
+  const router = useRouter();
 
-const mutation = useMutation({
-  mutationFn: async (data: UpdateProfileData) => {
 
-    const session = await getSession();
-    if (!session) {
-      throw new Error("Sessão não encontrada.");
-    }
-
-    const userData = { password: data.newPassword, username: data.username };
-    try {
-      const response = await api.patch("/user", userData, );
-      return response.data;
-    } catch (error: any) {
-      if (axios.isAxiosError(error) && error.response) {
-        throw new Error(error.response.data.message || "Erro ao criar conta");
+  const mutation = useMutation({
+    mutationFn: async (data: UpdateProfileData) => {
+      const session = await getSession();
+      if (!session || !session.jwt) {
+        throw new Error("Sessão não encontrada.");
       }
-      throw new Error("Erro ao criar conta");
-    }
-  },
-  onSuccess: () => {
-    toast.success("Perfil atualizado com sucesso!");
-  },
-  onError: (err: Error) => {
-    setError(err.message || "Algo deu errado");
-  },
-})
-return {
-  updateUser: mutation.mutate,
-  isLoading: mutation.isPending,
-  error,
-};
+
+      const decodedToken: JwtPayload = jwtDecode(session.jwt);
+      if (!decodedToken.sub) {
+        throw new Error("ID do usuário não encontrado no token.");
+      }
+
+      const userData = { password: data.newPassword, username: data.username };
+      try {
+        const response = await api.patch(`user/${decodedToken.sub}`, userData);
+        return response.data;
+      } catch (error: any) {
+        if (axios.isAxiosError(error) && error.response) {
+          throw new Error(
+            error.response.data.message || "Erro ao atualizar perfil"
+          );
+        }
+        throw new Error("Erro ao atualizar perfil");
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user"] });
+      toast.success("Perfil atualizado com sucesso!");
+    },
+    onError: (err: Error) => {
+      setError(err.message || "Algo deu errado");
+    },
+  });
+
+  return {
+    updateUser: mutation.mutate,
+    isLoading: mutation.isPending,
+    error,
+  };
 }
