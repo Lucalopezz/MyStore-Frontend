@@ -13,16 +13,18 @@ export default async function ProductPage({
 }) {
   const { id } = await params;
   const product: Product = await getProductById(id);
-  
+
   if (!product) return <ErrorState message="Erro ao carregar produtos" />;
-  
-  const lowStockWarning = product.quantity < 5 ? (
-    <Alert variant="destructive" className="mb-4">
-      <AlertDescription>
-        Atenção: Apenas {product.quantity} {product.quantity === 1 ? 'unidade' : 'unidades'} em estoque!
-      </AlertDescription>
-    </Alert>
-  ) : null;
+
+  const lowStockWarning =
+    product.quantity < 5 ? (
+      <Alert variant="destructive" className="mb-4">
+        <AlertDescription>
+          Atenção: Apenas {product.quantity}{" "}
+          {product.quantity === 1 ? "unidade" : "unidades"} em estoque!
+        </AlertDescription>
+      </Alert>
+    ) : null;
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-800 to-gray-900 py-12 px-4">
@@ -51,6 +53,7 @@ export default async function ProductPage({
             </div>
             <div className="w-full md:w-1/2">
               <ProductDetails
+                id={product.id}
                 name={product.name}
                 price={product.price}
                 description={product.description || "Sem descrição"}

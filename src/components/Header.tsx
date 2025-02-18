@@ -37,7 +37,7 @@ export default function Header() {
                 </li>
                 <li>
                   <Link
-                    href="/dashboard"
+                    href="/cart"
                     className="hover:text-gray-600 flex flex-row gap-1"
                   >
                     <ShoppingCart /> Carrinho

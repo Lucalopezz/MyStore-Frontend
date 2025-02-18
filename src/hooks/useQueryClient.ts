@@ -17,6 +17,7 @@ import axios from "axios";
 import { UpdateProfileData, updateProfilePictureData } from "@/schemas/profile";
 import api from "@/utils/api";
 import { jwtDecode } from "jwt-decode";
+import { Cart } from "@/interfaces/order.interface";
 
 interface PaginationMeta {
   page: number;
@@ -30,6 +31,15 @@ interface PaginationMeta {
 interface ProductsResponse {
   products: Product[];
   meta: PaginationMeta;
+}
+
+interface createCartProps {
+  productId: number;
+  quantity: number;
+}
+
+interface JwtPayload {
+  sub: string;
 }
 
 export const queryClient = new QueryClient({
@@ -170,14 +180,8 @@ export function useUploadUserImage() {
   };
 }
 
-interface JwtPayload {
-  sub: string;
-}
-
 export function useUpdateUser() {
   const [error, setError] = useState("");
-  const router = useRouter();
-
 
   const mutation = useMutation({
     mutationFn: async (data: UpdateProfileData) => {
@@ -218,4 +222,57 @@ export function useUpdateUser() {
     isLoading: mutation.isPending,
     error,
   };
+}
+
+export function useCreateCart() {
+  const mutation = useMutation({
+    mutationFn: async (data: createCartProps) => {
+      try {
+        const response = await api.post("cart/products", data);
+        console.log(response)
+        return response.data;
+      } catch (error: any) {
+        if (axios.isAxiosError(error) && error.response) {
+          throw new Error(
+            error.response.data.message || "Erro ao adicionar ao  carrinho"
+          );
+        }
+        throw new Error("Erro ao adicionar ao  carrinho");
+      }
+    },
+    onSuccess: () => {
+      toast.success("Item adicionado ao carrinho!");
+    },
+    onError: (err: Error) => {
+      toast.error("Alogo deu errado!");
+    },
+  });
+  return {
+    updateUser: mutation.mutate,
+    isLoading: mutation.isPending,
+  };
+}
+
+async function fetchCart(): Promise<Cart> {
+  const session = await getSession();
+  if (!session) {
+    throw new Error("Sessão não encontrada.");
+  }
+
+  try {
+    const { data } = await api.get<Cart>("/cart");
+    console.log(data)
+    return data;
+  } catch (error) {
+    console.error("Erro ao buscar o carrinho:", error);
+    throw new Error("Falha ao obter os dados do carrinho. Tente novamente mais tarde.");
+  }
+}
+
+export function useGetCart() {
+  return useQuery<Cart, Error>({
+    queryKey: ["cart"],
+    queryFn: fetchCart,
+    placeholderData: (previousData) => previousData ?? undefined,
+  });
 }
