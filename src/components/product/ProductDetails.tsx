@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from "react";
+import { useSession } from "next-auth/react";
 import { ShoppingCart, Check, Plus, Minus } from "lucide-react";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import { useCreateCart } from "@/hooks/useQueryClient";
+import { formatPrice } from "@/utils/format";
 
 interface ProductDetailsProps {
   id: number;
@@ -21,11 +23,14 @@ export const ProductDetails = ({
   description,
   quantity,
 }: ProductDetailsProps) => {
+  const { data: session } = useSession(); 
   const [isAdded, setIsAdded] = useState(false);
   const [cartQuantity, setCartQuantity] = useState(1);
   const { updateUser, isLoading } = useCreateCart();
 
   const handleAddToCart = () => {
+    if (!session) return; 
+
     const cartData = {
       productId: id,
       quantity: cartQuantity,
@@ -52,11 +57,6 @@ export const ProductDetails = ({
       setCartQuantity((prev) => prev - 1);
     }
   };
-
-  const formattedPrice = price.toLocaleString("pt-BR", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
 
   const totalPrice = (price * cartQuantity).toLocaleString("pt-BR", {
     minimumFractionDigits: 2,
@@ -88,7 +88,7 @@ export const ProductDetails = ({
             <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700/50">
               <div className="space-y-1">
                 <p className="text-3xl font-bold text-green-400">
-                  R$ {formattedPrice}
+                  R$ {formatPrice(price)}
                 </p>
                 {cartQuantity > 1 && (
                   <p className="text-sm text-gray-400">
@@ -140,27 +140,33 @@ export const ProductDetails = ({
         <div className="pt-8">
           <Button
             onClick={handleAddToCart}
-            disabled={isAdded || quantity === 0}
+            disabled={!session || isAdded || quantity === 0}
             className={`w-full h-14 text-lg font-semibold transition-all duration-300 
               hover:scale-102 disabled:opacity-50 rounded-xl
               ${
                 quantity === 0
                   ? "bg-red-600 hover:bg-red-700"
-                  : "bg-green-600 hover:bg-green-700"
+                  : session
+                  ? "bg-green-600 hover:bg-green-700"
+                  : "bg-gray-600 cursor-not-allowed"
               }`}
           >
-            {isAdded ? (
-              <span className="flex items-center justify-center gap-2">
-                <Check className="w-5 h-5" />
-                Adicionado ao Carrinho!
-              </span>
-            ) : quantity === 0 ? (
-              "Produto Esgotado"
+            {session ? (
+              isAdded ? (
+                <span className="flex items-center justify-center gap-2">
+                  <Check className="w-5 h-5" />
+                  Adicionado ao Carrinho!
+                </span>
+              ) : quantity === 0 ? (
+                "Produto Esgotado"
+              ) : (
+                <span className="flex items-center justify-center gap-2">
+                  <ShoppingCart className="w-5 h-5" />
+                  Adicionar ao Carrinho
+                </span>
+              )
             ) : (
-              <span className="flex items-center justify-center gap-2">
-                <ShoppingCart className="w-5 h-5" />
-                Adicionar ao Carrinho
-              </span>
+              "Faça login para adicionar ao carrinho"
             )}
           </Button>
         </div>
