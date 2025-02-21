@@ -38,6 +38,11 @@ interface createCartProps {
   quantity: number;
 }
 
+interface AddProductDTO {
+  productId: number;
+  quantity: number;
+}
+
 interface JwtPayload {
   sub: string;
 }
@@ -229,7 +234,7 @@ export function useCreateCart() {
     mutationFn: async (data: createCartProps) => {
       try {
         const response = await api.post("cart/products", data);
-        console.log(response)
+        console.log(response);
         return response.data;
       } catch (error: any) {
         if (axios.isAxiosError(error) && error.response) {
@@ -261,11 +266,12 @@ async function fetchCart(): Promise<Cart> {
 
   try {
     const { data } = await api.get<Cart>("/cart");
-    console.log(data)
     return data;
   } catch (error) {
     console.error("Erro ao buscar o carrinho:", error);
-    throw new Error("Falha ao obter os dados do carrinho. Tente novamente mais tarde.");
+    throw new Error(
+      "Falha ao obter os dados do carrinho. Tente novamente mais tarde."
+    );
   }
 }
 
@@ -275,4 +281,61 @@ export function useGetCart() {
     queryFn: fetchCart,
     placeholderData: (previousData) => previousData ?? undefined,
   });
+}
+
+export function useCartActions() {
+  const queryClient = useQueryClient();
+
+  const addToCart = useMutation({
+    mutationFn: async (data: AddProductDTO) => {
+      const response = await api.post("cart/products", data);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+    },
+    onError: (error: any) => {
+      console.error(
+        "Erro ao adicionar ao carrinho:",
+        error.response?.data?.message || error.message
+      );
+      toast.error(error.response?.data?.message || error.message);
+    },
+  });
+
+  const removeFromCart = useMutation({
+    mutationFn: async (productId: number) => {
+      const response = await api.delete(`cart/products/${productId}`);
+      return response.data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+    },
+    onError: (error: any) => {
+      console.error(
+        "Erro ao remover do carrinho:",
+        error.response?.data?.message || error.message
+      );
+      toast.error(error.response?.data?.message || error.message);
+    },
+  });
+
+  const incrementQuantity = (productId: number, currentQuantity: number) => {
+    return addToCart.mutate({ productId, quantity: currentQuantity + 1 });
+  };
+
+  const decrementQuantity = (productId: number, currentQuantity: number) => {
+    if (currentQuantity <= 1) {
+      return removeFromCart.mutate(productId);
+    }
+    return addToCart.mutate({ productId, quantity: currentQuantity - 1 });
+  };
+
+  return {
+    addToCart,
+    removeFromCart,
+    incrementQuantity,
+    decrementQuantity,
+    isLoading: addToCart.isPending || removeFromCart.isPending,
+  };
 }
