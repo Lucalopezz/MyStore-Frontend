@@ -1,7 +1,7 @@
 import { CartProduct, ProductOrder } from "./product.interface";
 import { User } from "./user.interface";
 
-enum OrderStatus {
+export enum OrderStatus {
   PROCESSANDO = "processando",
   CONFIRMADO = "confirmado",
   ENVIADO = "enviado",

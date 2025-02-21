@@ -1,7 +1,7 @@
 import { ErrorState } from "@/components/ErrorState";
 import { ProductDetails } from "@/components/product/ProductDetails";
 import { Product } from "@/interfaces/product.interface";
-import { getProductById } from "@/lib/product/product";
+import { getProductById } from "@/utils/product/product";
 import Image from "next/image";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -12,7 +12,7 @@ export default async function ProductPage({
   params: { id: string };
 }) {
   const { id } = await params;
-  const product: Product = await getProductById(id);
+  const product: Product = await getProductById(+id);
 
   if (!product) return <ErrorState message="Erro ao carregar produtos" />;
 
