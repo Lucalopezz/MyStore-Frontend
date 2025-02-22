@@ -234,7 +234,7 @@ export function useCreateCart() {
     mutationFn: async (data: createCartProps) => {
       try {
         const response = await api.post("cart/products", data);
-        console.log(response);
+        
         return response.data;
       } catch (error: any) {
         if (axios.isAxiosError(error) && error.response) {
@@ -247,6 +247,7 @@ export function useCreateCart() {
     },
     onSuccess: () => {
       toast.success("Item adicionado ao carrinho!");
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
     },
     onError: (err: Error) => {
       toast.error("Alogo deu errado!");
