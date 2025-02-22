@@ -41,7 +41,7 @@ export const OrderCard = ({ order }: OrderCardProps) => {
           </div>
           <div className="flex gap-4 items-center">
             <Badge
-              variant="secondary"
+      
               className={`px-4 py-1.5 font-medium rounded-full capitalize ${
                 orderStatusColors[order.status]
               }`}

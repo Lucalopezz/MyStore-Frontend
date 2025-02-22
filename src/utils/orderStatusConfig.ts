@@ -1,5 +1,3 @@
-// constants/orderStatusConfig.ts
-
 import { OrderStatus } from "@/interfaces/order.interface";
 
 

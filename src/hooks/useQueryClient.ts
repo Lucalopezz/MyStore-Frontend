@@ -17,7 +17,7 @@ import axios from "axios";
 import { UpdateProfileData, updateProfilePictureData } from "@/schemas/profile";
 import api from "@/utils/api";
 import { jwtDecode } from "jwt-decode";
-import { Cart } from "@/interfaces/order.interface";
+import { Cart, Order } from "@/interfaces/order.interface";
 
 interface PaginationMeta {
   page: number;
@@ -338,4 +338,22 @@ export function useCartActions() {
     decrementQuantity,
     isLoading: addToCart.isPending || removeFromCart.isPending,
   };
+}
+
+async function fetchOrders(): Promise<Order[]> {
+  try {
+    const res = await api.get('order');
+    return res.data.orders;
+  } catch (error) {
+    console.error("Erro ao buscar pedidos:", error);
+    throw new Error("Falha ao obter os pedidos.");
+  }
+}
+
+export function useGetOrders() {
+  return useQuery<Order[], Error>({
+    queryKey: ["orders"],
+    queryFn: fetchOrders,
+    placeholderData: [],
+  });
 }

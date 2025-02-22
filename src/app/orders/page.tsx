@@ -1,17 +1,21 @@
 'use client'
-import { useEffect, useState } from "react";
 import { PackageOpen } from "lucide-react";
-
 import { OrderCard } from "@/components/orders/OrderCart";
-import { getOrders } from "@/utils/order/order";
-import { Order } from "@/interfaces/order.interface";
+import { useGetOrders } from "@/hooks/useQueryClient";
+import { LoadingState } from "@/components/LoadingState";
+import { ErrorState } from "@/components/ErrorState";
+
 
 export default function Orders() {
-  const [orders, setOrders] = useState<Order[]>([]);
+  const { data: orders = [], isLoading, isError } = useGetOrders();
 
-  useEffect(() => {
-    getOrders().then(setOrders);
-  }, []);
+  if (isLoading) {
+    return <LoadingState/>
+  }
+
+  if (isError) {
+    return <ErrorState />
+  }
 
   return (
     <div className="min-h-screen py-12 px-4">
