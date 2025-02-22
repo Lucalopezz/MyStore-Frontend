@@ -38,13 +38,16 @@ interface createCartProps {
   quantity: number;
 }
 
-interface AddProductDTO {
+interface AddProductProps {
   productId: number;
   quantity: number;
 }
 
 interface JwtPayload {
   sub: string;
+}
+interface CreateOrderProps {
+  cartId: number;
 }
 
 export const queryClient = new QueryClient({
@@ -234,7 +237,7 @@ export function useCreateCart() {
     mutationFn: async (data: createCartProps) => {
       try {
         const response = await api.post("cart/products", data);
-        
+
         return response.data;
       } catch (error: any) {
         if (axios.isAxiosError(error) && error.response) {
@@ -288,7 +291,7 @@ export function useCartActions() {
   const queryClient = useQueryClient();
 
   const addToCart = useMutation({
-    mutationFn: async (data: AddProductDTO) => {
+    mutationFn: async (data: AddProductProps) => {
       const response = await api.post("cart/products", data);
       return response.data;
     },
@@ -343,7 +346,7 @@ export function useCartActions() {
 
 async function fetchOrders(): Promise<Order[]> {
   try {
-    const res = await api.get('order');
+    const res = await api.get("order");
     return res.data.orders;
   } catch (error) {
     console.error("Erro ao buscar pedidos:", error);
@@ -357,4 +360,35 @@ export function useGetOrders() {
     queryFn: fetchOrders,
     placeholderData: [],
   });
+}
+
+export function useCreateOrder() {
+  const router = useRouter();
+  const [error, setError] = useState("");
+
+  const mutation = useMutation({
+    mutationFn: async (data: CreateOrderProps) => {
+      try {
+        const response = await api.post("/order", data);
+        return response.data;
+      } catch (error: any) {
+        if (axios.isAxiosError(error) && error.response) {
+          throw new Error(
+            error.response.data.message || "Erro ao criar pedido"
+          );
+        }
+        throw new Error("Erro ao criar pedido");
+      }
+    },
+    onSuccess: () => {
+      router.push("/orders");
+      toast.success("Pedido criado com sucesso!");
+    },
+    onError: (err: Error) => {
+      setError(err.message || "Algo deu errado");
+    },
+  });
+  return {
+    createOrder: mutation.mutate,
+  };
 }
