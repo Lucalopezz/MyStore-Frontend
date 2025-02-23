@@ -5,16 +5,19 @@ import { JWT } from "next-auth/jwt";
 declare module "next-auth" {
   interface Session extends DefaultSession {
     jwt: string;
+    role: string; // Adicionando a role à sessão
   }
 
   interface User {
     jwt: string;
+    role: string; // Adicionando a role ao usuário
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
     jwt: string;
+    role: string; // Adicionando a role ao JWT
   }
 }
 
@@ -43,6 +46,7 @@ const handler = NextAuth({
             return {
               id: "1",
               jwt: data.accessToken,
+              role: data.role, // Armazenando a role do usuário
             };
           }
           return null;
@@ -56,6 +60,7 @@ const handler = NextAuth({
     async jwt({ token, user }) {
       if (user) {
         token.jwt = user.jwt;
+        token.role = user.role; // Armazenando a role no token
       }
       return token;
     },
@@ -63,6 +68,7 @@ const handler = NextAuth({
       return {
         ...session,
         jwt: token.jwt,
+        role: token.role, // Incluindo a role na sessão
       };
     },
   },
