@@ -4,15 +4,19 @@ import { SessionProvider } from "next-auth/react";
 import { queryClient } from "@/hooks/useQueryClient";
 import Header from "@/components/Header";
 import { ToastProvider } from "@/providers/toast-provider";
+import Footer from "@/components/Footer";
 
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider>
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <div className="flex flex-col min-h-screen">
         <Header />
-        {children}
+        <main className="flex-grow">{children}</main>
         <ToastProvider />
-      </QueryClientProvider>
-    </SessionProvider>
+        <Footer />
+      </div>
+    </QueryClientProvider>
+  </SessionProvider>
   );
 }

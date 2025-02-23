@@ -1,7 +1,6 @@
 "use client";
 
 import { useCartActions, useCreateOrder, useGetCart } from "@/hooks/useQueryClient";
-
 import {
   Card,
   CardContent,
@@ -18,7 +17,7 @@ import { EmptyCart } from "@/components/cart/EmptyCart";
 
 export default function Cart() {
   const { data: cart, isLoading, error } = useGetCart();
-  const {createOrder } = useCreateOrder()
+  const { createOrder } = useCreateOrder();
   const {
     removeFromCart,
     incrementQuantity,
@@ -84,7 +83,7 @@ export default function Cart() {
             <Button
               className="w-full h-14 text-lg font-semibold bg-green-600 hover:bg-green-700 transition-all duration-300 hover:scale-[1.02] rounded-xl"
               disabled={isActionLoading}
-              onClick={() => createOrder({cartId: cart.id})}
+              onClick={() => createOrder({ cartId: cart.id })}
             >
               Finalizar Compra
             </Button>
