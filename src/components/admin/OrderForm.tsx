@@ -32,6 +32,14 @@ export function OrderForm({ onSubmit }: BaseFormProps<OrderFormData>) {
     },
   });
 
+  const handleSubmit = async (data: OrderFormData) => {
+    await onSubmit(data);
+    form.reset({
+      orderId: "",
+      status: "processando"
+    });
+  };
+
   return (
     <FormComponents.Card>
       <FormComponents.CardHeader>
@@ -39,7 +47,7 @@ export function OrderForm({ onSubmit }: BaseFormProps<OrderFormData>) {
       </FormComponents.CardHeader>
       <FormComponents.CardContent>
         <FormComponents.Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <FormComponents.FormField
               control={form.control}
               name="orderId"

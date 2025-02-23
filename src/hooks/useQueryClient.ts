@@ -18,6 +18,7 @@ import { UpdateProfileData, updateProfilePictureData } from "@/schemas/profile";
 import api from "@/utils/api";
 import { jwtDecode } from "jwt-decode";
 import { Cart, Order } from "@/interfaces/order.interface";
+import { OrderFormData } from "@/schemas/product.schema";
 
 interface PaginationMeta {
   page: number;
@@ -48,6 +49,14 @@ interface JwtPayload {
 }
 interface CreateOrderProps {
   cartId: number;
+}
+
+interface CreateProductProps {
+  name: string;
+  description?: string;
+  price: number;
+  quantity: number;
+  images: string;
 }
 
 export const queryClient = new QueryClient({
@@ -390,5 +399,63 @@ export function useCreateOrder() {
   });
   return {
     createOrder: mutation.mutate,
+  };
+}
+
+export function useCreateProduct() {
+  const mutation = useMutation({
+    mutationFn: async (data: CreateProductProps) => {
+      try {
+        const response = await api.post("/product", data);
+        return response.data;
+      } catch (error: any) {
+        if (axios.isAxiosError(error) && error.response) {
+          throw new Error(
+            error.response.data.message || "Erro ao criar produto"
+          );
+        }
+        throw new Error("Erro ao criar produto");
+      }
+    },
+    onSuccess: () => {
+      toast.success("Produto criado com sucesso!");
+    },
+    onError: (err: Error) => {
+      toast.error("Algo deu errado");
+    },
+  });
+
+  return {
+    createProduct: mutation.mutate,
+  };
+}
+
+export function useUpdateOrderStatus() {
+  const mutation = useMutation({
+    mutationFn: async (data: OrderFormData) => {
+      try {
+        const response = await api.patch(`/order/${data.orderId}/status`, {
+          status: data.status,
+        });
+        return response.data;
+      } catch (error: any) {
+        if (axios.isAxiosError(error) && error.response) {
+          throw new Error(
+            error.response.data.message || "Erro ao atualizar status do pedido"
+          );
+        }
+        throw new Error("Erro ao atualizar status do pedido");
+      }
+    },
+    onSuccess: () => {
+      toast.success("Status do pedido atualizado com sucesso!");
+    },
+    onError: (err: Error) => {
+      toast.error("Algo deu errado");
+    },
+  });
+
+  return {
+    updateOrderStatus: mutation.mutate,
   };
 }

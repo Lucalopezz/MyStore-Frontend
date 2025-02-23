@@ -16,11 +16,16 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
     defaultValues: {
       name: "",
       description: "",
-      price: 0,
+      price: "", 
       quantity: 0,
       images: "",
     },
   });
+
+  const handleSubmit = async (data: ProductFormData) => {
+    await onSubmit(data);
+    form.reset(); 
+  };
 
   return (
     <FormComponents.Card>
@@ -29,7 +34,7 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
       </FormComponents.CardHeader>
       <FormComponents.CardContent>
         <FormComponents.Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
             <FormComponents.FormField
               control={form.control}
               name="name"
@@ -49,9 +54,8 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
               control={form.control}
               name="price"
               label="Preço"
-              type="number"
+              type="text"
               min="0"
-              step="0.01"
               placeholder="0.00"
             />
 

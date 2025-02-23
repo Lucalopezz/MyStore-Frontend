@@ -3,11 +3,16 @@
 import { OrderFormData, ProductFormData } from "@/schemas/product.schema";
 import { ProductForm } from "./ProductForm";
 import { OrderForm } from "./OrderForm";
+import { useCreateProduct, useUpdateOrderStatus } from "@/hooks/useQueryClient";
 
 export function AdminForms() {
+  const { createProduct } = useCreateProduct();
+  const { updateOrderStatus } = useUpdateOrderStatus();
+
+
   const handleProductSubmit = async (data: ProductFormData) => {
     try {
-      console.log(data);
+      await createProduct(data);
     } catch (error) {
       console.error(error);
     }
@@ -15,7 +20,7 @@ export function AdminForms() {
 
   const handleOrderSubmit = async (data: OrderFormData) => {
     try {
-      console.log(data);
+      await updateOrderStatus(data)
     } catch (error) {
       console.error(error);
     }

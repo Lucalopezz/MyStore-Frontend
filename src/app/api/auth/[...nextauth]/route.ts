@@ -5,19 +5,19 @@ import { JWT } from "next-auth/jwt";
 declare module "next-auth" {
   interface Session extends DefaultSession {
     jwt: string;
-    role: string; // Adicionando a role à sessão
+    role: string;
   }
 
   interface User {
     jwt: string;
-    role: string; // Adicionando a role ao usuário
+    role: string; 
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
     jwt: string;
-    role: string; // Adicionando a role ao JWT
+    role: string;
   }
 }
 
