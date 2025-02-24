@@ -18,7 +18,11 @@ import { UpdateProfileData, updateProfilePictureData } from "@/schemas/profile";
 import api from "@/utils/api";
 import { jwtDecode } from "jwt-decode";
 import { Cart, Order } from "@/interfaces/order.interface";
-import { OrderFormData } from "@/schemas/product.schema";
+import {
+  DeleteProductData,
+  OrderFormData,
+  UpdateProductData,
+} from "@/schemas/product.schema";
 
 interface PaginationMeta {
   page: number;
@@ -457,5 +461,70 @@ export function useUpdateOrderStatus() {
 
   return {
     updateOrderStatus: mutation.mutate,
+  };
+}
+
+export function useRemoveProduct() {
+  const mutation = useMutation({
+    mutationFn: async (data: DeleteProductData) => {
+      try {
+        const response = await api.delete(`/product/${data.productId}`);
+        return response.data;
+      } catch (error: any) {
+        if (axios.isAxiosError(error) && error.response) {
+          throw new Error(
+            error.response.data.message || "Erro ao atualizar status do pedido"
+          );
+        }
+        throw new Error("Erro ao atualizar status do pedido");
+      }
+    },
+    onSuccess: () => {
+      toast.success("Produto removido com sucesso!");
+    },
+    onError: (err: Error) => {
+      toast.error("Algo deu errado");
+    },
+  });
+
+  return {
+    removeProduct: mutation.mutate,
+  };
+}
+export function useUpdateProduct() {
+  const mutation = useMutation({
+    mutationFn: async (data: UpdateProductData) => {
+      try {
+        const { productId, ...updateData } = data;
+        const processedData = {
+          ...updateData,
+          price: Number(updateData.price)
+            
+        };
+        const response = await api.patch(
+          `/product/${productId}`,
+          processedData
+        );
+        return response.data;
+      } catch (error: any) {
+        if (axios.isAxiosError(error) && error.response) {
+          throw new Error(
+            error.response.data.message || "Erro ao atualizar produto"
+          );
+        }
+        console.log(error);
+        throw new Error("Erro ao atualizar produto");
+      }
+    },
+    onSuccess: () => {
+      toast.success("Produto atualizado com sucesso!");
+    },
+    onError: (err: Error) => {
+      toast.error("Algo deu errado");
+    },
+  });
+
+  return {
+    updateProduct: mutation.mutate,
   };
 }

@@ -3,13 +3,15 @@
 import { OrderFormData, ProductFormData } from "@/schemas/product.schema";
 import { ProductForm } from "./ProductForm";
 import { OrderForm } from "./OrderForm";
-import { useCreateProduct, useUpdateOrderStatus } from "@/hooks/useQueryClient";
+import { useCreateProduct, useRemoveProduct, useUpdateOrderStatus, useUpdateProduct } from "@/hooks/useQueryClient";
 import { DeleteProductForm } from "./DeleteProductForm";
 import { UpdateProductForm } from "./UpdateProductForm";
 
 export function AdminForms() {
   const { createProduct } = useCreateProduct();
   const { updateOrderStatus } = useUpdateOrderStatus();
+  const {  removeProduct} = useRemoveProduct();
+  const {  updateProduct} = useUpdateProduct();
 
 
   const handleProductSubmit = async (data: ProductFormData) => {
@@ -32,8 +34,8 @@ export function AdminForms() {
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
       <ProductForm onSubmit={handleProductSubmit} />
       <OrderForm onSubmit={handleOrderSubmit} />
-      <DeleteProductForm onSubmit={() => alert('foi')}/>
-      <UpdateProductForm onSubmit={() => alert('foi')}/>
+      <DeleteProductForm onSubmit={removeProduct}/>
+      <UpdateProductForm onSubmit={updateProduct}/>
     </div>
   );
 }

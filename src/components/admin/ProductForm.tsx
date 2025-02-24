@@ -55,7 +55,6 @@ export function ProductForm({ onSubmit }: ProductFormProps) {
               name="price"
               label="Preço"
               type="text"
-              min="0"
               placeholder="0.00"
             />
 
