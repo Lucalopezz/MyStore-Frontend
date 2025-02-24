@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { Product } from "@/interfaces/product.interface";
+import { formatPrice } from "@/utils/format";
 
 interface ProductCardProps {
   product: Product;
@@ -30,7 +31,7 @@ export function ProductCard({ product }: ProductCardProps) {
       </CardHeader>
       <CardContent>
         <p className="text-gray-300 mb-2">{product.description}</p>
-        <p className="font-semibold">R$ {product.price}</p>
+        <p className="font-semibold">{formatPrice(product.price * 1)}</p>
       </CardContent>
       <CardFooter>
         <Button

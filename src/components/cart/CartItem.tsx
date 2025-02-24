@@ -83,7 +83,7 @@ export const CartItem = ({
                 {formatPrice(product.price * quantity)}
               </p>
               <p className="text-sm text-gray-400">
-                {formatPrice(product.price)} cada
+                {formatPrice(product.price * 1)} cada
               </p>
             </div>
           </div>

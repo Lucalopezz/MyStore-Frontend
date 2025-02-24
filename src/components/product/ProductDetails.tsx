@@ -88,7 +88,7 @@ export const ProductDetails = ({
             <div className="bg-gray-800/50 rounded-xl p-4 border border-gray-700/50">
               <div className="space-y-1">
                 <p className="text-3xl font-bold text-green-400">
-                  R$ {formatPrice(price)}
+                  {formatPrice(price * 1)}
                 </p>
                 {cartQuantity > 1 && (
                   <p className="text-sm text-gray-400">
