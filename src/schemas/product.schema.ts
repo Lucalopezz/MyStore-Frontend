@@ -34,3 +34,22 @@ export const orderSchema = z.object({
 });
 
 export type OrderFormData = z.infer<typeof orderSchema>;
+
+
+export const deleteProductSchema = z.object({
+  productId: z.number().min(1, "ID do produto é obrigatório"),
+});
+
+export type DeleteProductData = z.infer<typeof deleteProductSchema>;
+
+
+export const updateProductSchema = z.object({
+  productId: z.string().min(1, "ID do produto é obrigatório"),
+  name: z.string().optional(),
+  description: z.string().optional(),
+  price: z.number().min(0, "O preço deve ser maior ou igual a zero").optional(),
+  quantity: z.number().int().min(0, "A quantidade deve ser maior ou igual a zero").optional(),
+  images: z.string().url("URL inválida").optional(),
+});
+
+export type UpdateProductData = z.infer<typeof updateProductSchema>;

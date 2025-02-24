@@ -54,7 +54,7 @@ interface CreateOrderProps {
 interface CreateProductProps {
   name: string;
   description?: string;
-  price: number;
+  price: string;
   quantity: number;
   images: string;
 }
