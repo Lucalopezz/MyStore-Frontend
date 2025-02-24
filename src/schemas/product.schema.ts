@@ -47,7 +47,9 @@ export const updateProductSchema = z.object({
   productId: z.string().min(1, "ID do produto é obrigatório"),
   name: z.string().optional(),
   description: z.string().optional(),
-  price: z.number().min(0, "O preço deve ser maior ou igual a zero").optional(),
+  price: z.string()
+  .min(1, "Preço é obrigatório")
+  .regex(/^\d+([.,]\d{1,2})?$/, "Formato inválido. Use 0.00 ou 0,00").optional(),
   quantity: z.number().int().min(0, "A quantidade deve ser maior ou igual a zero").optional(),
   images: z.string().url("URL inválida").optional(),
 });

@@ -20,7 +20,7 @@ export function UpdateProductForm({ onSubmit }: BaseFormProps<UpdateProductData>
       productId: "",
       name: "",
       description: "",
-      price: 0,
+      price: "",
       quantity: 0,
       images: ""
     },
@@ -66,14 +66,7 @@ export function UpdateProductForm({ onSubmit }: BaseFormProps<UpdateProductData>
 
   const handleSubmit = async (data: UpdateProductData) => {
     await onSubmit(data);
-    form.reset({
-      productId: "",
-      name: "",
-      description: "",
-      price: undefined,
-      quantity: undefined,
-      images: ""
-    });
+    form.reset();
     setError(null);
   };
 
@@ -131,8 +124,7 @@ export function UpdateProductForm({ onSubmit }: BaseFormProps<UpdateProductData>
               name="price"
               label="Preço"
               placeholder="Digite o preço do produto"
-              type="number"
-              step="0.01"
+              type="text"
               disabled={isLoading}
             />
             
