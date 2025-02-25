@@ -1,6 +1,10 @@
 "use client";
 
-import { useCartActions, useCreateOrder, useGetCart } from "@/hooks/useQueryClient";
+import {
+  useCartActions,
+  useCreateOrder,
+  useGetCart,
+} from "@/hooks/useQueryClient";
 import {
   Card,
   CardContent,
@@ -14,8 +18,11 @@ import { LoadingState } from "@/components/LoadingState";
 import { CartItem } from "@/components/cart/CartItem";
 import { CartSummary } from "@/components/cart/CartSummary";
 import { EmptyCart } from "@/components/cart/EmptyCart";
+import { useState } from "react";
+import PaymentDialog from "@/components/payment/Payment";
 
 export default function Cart() {
+  const [isPaymentOpen, setIsPaymentOpen] = useState(false);
   const { data: cart, isLoading, error } = useGetCart();
   const { createOrder } = useCreateOrder();
   const {
@@ -40,6 +47,24 @@ export default function Cart() {
     return cart.products.reduce((total, item) => {
       return total + (item.product?.price || 0) * item.quantity;
     }, 0);
+  };
+
+  // Preparar dados para o pagamento
+  const handleCheckout = () => {
+    setIsPaymentOpen(true);
+  };
+
+  // Após pagamento bem-sucedido, criar o pedido
+  const handlePaymentSuccess = () => {
+    if (!cart) return;
+    createOrder({ cartId: cart.id });
+  };
+
+  // Preparar objeto de carrinho para o Stripe
+  const cartForPayment = {
+    id: cart?.id || "",
+    name: `Pedido com ${cart?.products?.length || 0} itens`,
+    price: calculateTotal(),
   };
 
   return (
@@ -83,13 +108,22 @@ export default function Cart() {
             <Button
               className="w-full h-14 text-lg font-semibold bg-green-600 hover:bg-green-700 transition-all duration-300 hover:scale-[1.02] rounded-xl"
               disabled={isActionLoading}
-              onClick={() => createOrder({ cartId: cart.id })}
+              onClick={handleCheckout}
             >
               Finalizar Compra
             </Button>
           </CardFooter>
         )}
       </Card>
+
+      {cart && (
+        <PaymentDialog
+          product={cartForPayment}
+          isOpen={isPaymentOpen}
+          onClose={() => setIsPaymentOpen(false)}
+          onPaymentSuccess={handlePaymentSuccess}
+        />
+      )}
     </div>
   );
 }
