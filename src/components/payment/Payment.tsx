@@ -12,44 +12,41 @@ import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
-const PaymentDialog = ({ product, isOpen, onClose, onPaymentSuccess }: any) => {
-  const router = useRouter();
+
+const PaymentDialog = ({ cart, isOpen, onClose }: any) => {
+  
+
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
   const handlePayment = async () => {
     try {
       setIsLoading(true);
-
+  
       const response = await fetch("/api/create-checkout-session", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          productId: product.id,
-          price: product.price,
-          name: product.name,
+          cartId: cart.id,
+          price: cart.price,
+          name: cart.name,
         }),
       });
-
+  
       const { sessionUrl, sessionId } = await response.json();
-
+  
       if (sessionUrl) {
         localStorage.setItem("stripeSessionId", sessionId);
-
-        if (onPaymentSuccess) {
-          onPaymentSuccess();
-        }
-
-        window.location.href = sessionUrl;
+        
+        window.location.href = sessionUrl; 
       }
     } catch (error) {
       toast({
         variant: "destructive",
         title: "Erro no pagamento",
-        description:
-          "Não foi possível processar seu pagamento. Tente novamente.",
+        description: "Não foi possível processar seu pagamento. Tente novamente.",
       });
     } finally {
       setIsLoading(false);
@@ -63,7 +60,7 @@ const PaymentDialog = ({ product, isOpen, onClose, onPaymentSuccess }: any) => {
           <DialogTitle>Confirmar Pagamento</DialogTitle>
           <DialogDescription>
             Você está finalizando a compra no valor de R${" "}
-            {product?.price?.toFixed(2)}
+            {cart?.price?.toFixed(2)}
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4">
@@ -72,7 +69,7 @@ const PaymentDialog = ({ product, isOpen, onClose, onPaymentSuccess }: any) => {
             completar seu pagamento.
           </p>
           <div className="flex justify-end gap-3">
-            <Button variant="outline" onClick={onClose} disabled={isLoading}>
+            <Button variant="outline" onClick={onClose} disabled={isLoading} className="text-gray-600 hover:text-gray-800">
               Cancelar
             </Button>
             <Button onClick={handlePayment} disabled={isLoading}>

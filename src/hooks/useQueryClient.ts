@@ -376,7 +376,6 @@ export function useGetOrders() {
 }
 
 export function useCreateOrder() {
-  const router = useRouter();
   const [error, setError] = useState("");
 
   const mutation = useMutation({
@@ -393,10 +392,7 @@ export function useCreateOrder() {
         throw new Error("Erro ao criar pedido");
       }
     },
-    onSuccess: () => {
-      router.push("/orders");
-      toast.success("Pedido criado com sucesso!");
-    },
+    onSuccess: () => {},
     onError: (err: Error) => {
       setError(err.message || "Algo deu errado");
     },
@@ -498,8 +494,7 @@ export function useUpdateProduct() {
         const { productId, ...updateData } = data;
         const processedData = {
           ...updateData,
-          price: Number(updateData.price)
-            
+          price: Number(updateData.price),
         };
         const response = await api.patch(
           `/product/${productId}`,

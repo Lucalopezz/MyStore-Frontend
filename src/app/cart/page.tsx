@@ -49,18 +49,12 @@ export default function Cart() {
     }, 0);
   };
 
-  // Preparar dados para o pagamento
+
   const handleCheckout = () => {
     setIsPaymentOpen(true);
   };
 
-  // Após pagamento bem-sucedido, criar o pedido
-  const handlePaymentSuccess = () => {
-    if (!cart) return;
-    createOrder({ cartId: cart.id });
-  };
 
-  // Preparar objeto de carrinho para o Stripe
   const cartForPayment = {
     id: cart?.id || "",
     name: `Pedido com ${cart?.products?.length || 0} itens`,
@@ -118,10 +112,10 @@ export default function Cart() {
 
       {cart && (
         <PaymentDialog
-          product={cartForPayment}
+          cart={cartForPayment}
           isOpen={isPaymentOpen}
           onClose={() => setIsPaymentOpen(false)}
-          onPaymentSuccess={handlePaymentSuccess}
+
         />
       )}
     </div>

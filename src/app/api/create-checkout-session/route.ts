@@ -4,7 +4,7 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    if (!body.productId || !body.price || !body.name) {
+    if (!body.cartId || !body.price || !body.name) {
       return NextResponse.json(
         { message: "Parâmetros inválidos" },
         { status: 400 }
@@ -16,12 +16,13 @@ export async function POST(req: Request) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          id: body.productId,
+          id: body.cartId,
           price: body.price,
           name: body.name,
         }),
       }
     );
+
 
     if (!response.ok) {
       return NextResponse.json(
