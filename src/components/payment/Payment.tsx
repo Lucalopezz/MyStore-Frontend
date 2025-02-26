@@ -34,6 +34,7 @@ const PaymentDialog = ({ cart, isOpen, onClose }: any) => {
           name: cart.name,
         }),
       });
+      console.log(response)
   
       const { sessionUrl, sessionId } = await response.json();
   

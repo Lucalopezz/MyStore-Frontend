@@ -1,6 +1,7 @@
-import NextAuth, { DefaultSession } from "next-auth";
+import NextAuth, { DefaultSession, User } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { JWT } from "next-auth/jwt";
+import { Session } from "next-auth";
 
 declare module "next-auth" {
   interface Session extends DefaultSession {
@@ -10,7 +11,7 @@ declare module "next-auth" {
 
   interface User {
     jwt: string;
-    role: string; 
+    role: string;
   }
 }
 
@@ -21,7 +22,7 @@ declare module "next-auth/jwt" {
   }
 }
 
-const handler = NextAuth({
+export const authOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -44,9 +45,9 @@ const handler = NextAuth({
 
           if (response.ok && data.accessToken) {
             return {
-              id: "1",
-              jwt: data.accessToken,
-              role: data.role, // Armazenando a role do usuário
+              id: "1", // Use um ID real do usuário, se disponível
+              jwt: data.accessToken, // Token JWT
+              role: data.role, // Role do usuário
             };
           }
           return null;
@@ -57,18 +58,18 @@ const handler = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user }: { token: JWT; user?: User }) {
       if (user) {
-        token.jwt = user.jwt;
-        token.role = user.role; // Armazenando a role no token
+        token.jwt = user.jwt; 
+        token.role = user.role; 
       }
       return token;
     },
-    async session({ session, token }) {
+    async session({ session, token }: { session: Session; token: JWT }) {
       return {
         ...session,
         jwt: token.jwt,
-        role: token.role, // Incluindo a role na sessão
+        role: token.role, 
       };
     },
   },
@@ -76,6 +77,7 @@ const handler = NextAuth({
     signIn: "/login",
     signOut: "/login",
   },
-});
+};
 
+const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST };
