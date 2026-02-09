@@ -9,14 +9,14 @@ import Footer from "@/components/Footer";
 export function Providers({ children }: { children: React.ReactNode }) {
   return (
     <SessionProvider>
-    <QueryClientProvider client={queryClient}>
-      <div className="flex flex-col min-h-screen">
-        <Header />
-        <main className="flex-grow">{children}</main>
-        <ToastProvider />
-        <Footer />
-      </div>
-    </QueryClientProvider>
-  </SessionProvider>
+      <QueryClientProvider client={queryClient}>
+        <div className="flex flex-col min-h-screen">
+          <Header />
+          <main className="flex-grow">{children}</main>
+          <ToastProvider />
+          <Footer />
+        </div>
+      </QueryClientProvider>
+    </SessionProvider>
   );
 }
